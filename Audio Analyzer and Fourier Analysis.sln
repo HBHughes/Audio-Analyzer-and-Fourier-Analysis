@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Audio Analyzer and Fourier Analysis", "Audio Analyzer and Fourier Analysis\Audio Analyzer and Fourier Analysis.csproj", "{C822204A-6A09-409B-9BD0-7A96DE778FFE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C822204A-6A09-409B-9BD0-7A96DE778FFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C822204A-6A09-409B-9BD0-7A96DE778FFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C822204A-6A09-409B-9BD0-7A96DE778FFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C822204A-6A09-409B-9BD0-7A96DE778FFE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {693DE7B2-215D-4B7C-BF1E-911F6599B9A5}
+	EndGlobalSection
+EndGlobal
