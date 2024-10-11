@@ -1,7 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System.IO;
+using System.Text;
 using Additionals;
-Console.WriteLine("Hello, World!");
+using MathNet;
 /* Goal: 1 Intake Waveform Audio File(WAV)-> 2 Get Composite Waveform-> 3 Graph Composite Waveform-> 4 Using Fourier Analysis (FFT) to seperate into individual Waveforms - Attempt to Use Most ASM possible
     Resources: https://en.wikipedia.org/wiki/Fourier_analysis , https://en.wikipedia.org/wiki/Pulse-code_modulation , 
     https://en.wikipedia.org/wiki/WAV , https://www.nti-audio.com/en/support/know-how/fast-fourier-transform-fft ,
@@ -19,10 +20,19 @@ Console.WriteLine("Hello, World!");
     8) I'll create my own transform function to decrease reliance on external libraries
     9) Input .wav should be roughly periodic
     Audio Analyzer Notes:
-    1) 
+    https://datafireball.com/2016/08/29/wav-deepdive-into-file-format/ , http://soundfile.sapp.org/doc/WaveFormat/
 */
 
 string rootPath = "C:\\Users\\HHughes\\Documents\\Coding\\file_example_WAV_1MG.wav";
 string validExtension = ".wav";
-bool validPath = (FileServices.ValidUserFileInput(rootPath, validExtension));
+bool validPath = (UserInput.StartIsReady(rootPath, validExtension));
+Console.WriteLine(validPath);
+if (validPath)
+{
+    FileStream fileStream = new FileStream(rootPath, FileMode.Open, FileAccess.Read);
+    BinaryReader binReader = new BinaryReader(fileStream, Encoding.ASCII);
+    byte[] fileBytes = binReader.ReadBytes((int)fileStream.Length);
+    binReader.Close();
+    fileStream.Close();
+}
 Console.ReadLine();
