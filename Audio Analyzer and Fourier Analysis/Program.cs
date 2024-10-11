@@ -6,7 +6,8 @@ using MathNet;
 /* Goal: 1 Intake Waveform Audio File(WAV)-> 2 Get Composite Waveform-> 3 Graph Composite Waveform-> 4 Using Fourier Analysis (FFT) to seperate into individual Waveforms - Attempt to Use Most ASM possible
     Resources: https://en.wikipedia.org/wiki/Fourier_analysis , https://en.wikipedia.org/wiki/Pulse-code_modulation , 
     https://en.wikipedia.org/wiki/WAV , https://www.nti-audio.com/en/support/know-how/fast-fourier-transform-fft ,
-    https://datafireball.com/2016/08/29/wav-deepdive-into-file-format/ , http://soundfile.sapp.org/doc/WaveFormat/
+    https://datafireball.com/2016/08/29/wav-deepdive-into-file-format/ , http://soundfile.sapp.org/doc/WaveFormat/ , 
+    https://www.dspguide.com/ch3/1.htm
     Fourier Analysis Notes:
     1) A complex signal can be represented as a sum of simpler sine and cosine waves at different frequencies,
     with the Fourier transform revealing the strength of each frequency component.
@@ -26,13 +27,22 @@ using MathNet;
 string rootPath = "C:\\Users\\HHughes\\Documents\\Coding\\file_example_WAV_1MG.wav";
 string validExtension = ".wav";
 bool validPath = (UserInput.StartIsReady(rootPath, validExtension));
-Console.WriteLine(validPath);
 if (validPath)
 {
     FileStream fileStream = new FileStream(rootPath, FileMode.Open, FileAccess.Read);
     BinaryReader binReader = new BinaryReader(fileStream, Encoding.ASCII);
     byte[] fileBytes = binReader.ReadBytes((int)fileStream.Length);
+    int ChannelCount = WAVServices.AudioChannelCountWAV(fileBytes);
     binReader.Close();
     fileStream.Close();
+    Console.WriteLine(WAVServices.SubChunk2Size(fileBytes));
+    Console.WriteLine(WAVServices.SubChunk1Size(fileBytes));
+    Console.WriteLine(WAVServices.GetSampleRate(fileBytes));
+    Console.WriteLine(WAVServices.BitsPerSample(fileBytes));
+    UInt16[] Data = WAVServices.ByteCombination(fileBytes);
+    foreach (UInt16 data in Data)
+    {
+        Console.WriteLine(data.ToString());
+    }
 }
-Console.ReadLine();
+else { Console.WriteLine("Invalid Path"); }
