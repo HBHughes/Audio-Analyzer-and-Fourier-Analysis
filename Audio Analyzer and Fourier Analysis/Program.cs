@@ -20,11 +20,14 @@ using MathNet;
     7) The sampling frequency must be at least double the highest frequency of the signal 2fmax >= sf
     8) I'll create my own transform function to decrease reliance on external libraries
     9) Input .wav should be roughly periodic
+    https://en.wikipedia.org/wiki/Fourier_analysis#Discrete-time_Fourier_transform_(DTFT)
     Audio Analyzer Notes:
     https://datafireball.com/2016/08/29/wav-deepdive-into-file-format/ , http://soundfile.sapp.org/doc/WaveFormat/
+    MathNet Notes:
+    1) Chosen for good compatibilities with c# 
 */
 
-string rootPath = "C:\\Users\\HHughes\\Documents\\Coding\\file_example_WAV_1MG.wav";
+string rootPath = "C:\\Users\\holde\\Downloads\\file_example_WAV_5MG.wav";
 string validExtension = ".wav";
 bool validPath = (UserInput.StartIsReady(rootPath, validExtension));
 if (validPath)
@@ -39,10 +42,17 @@ if (validPath)
     Console.WriteLine(WAVServices.SubChunk1Size(fileBytes));
     Console.WriteLine(WAVServices.GetSampleRate(fileBytes));
     Console.WriteLine(WAVServices.BitsPerSample(fileBytes));
-    UInt16[] Data = WAVServices.ByteCombination(fileBytes);
-    foreach (UInt16 data in Data)
+    Int16[] Data = WAVServices.ByteCombination(fileBytes);
+    string fileName = @"C:\Users\holde\downloads"; //intend to make csv
+    if (File.Exists(fileName))
     {
-        Console.WriteLine(data.ToString());
+        File.Delete(fileName);
     }
-}
+    using (FileStream fs = File.Create(fileName))
+    {
+        // Add some text to file
+        byte[] title = new UTF8Encoding(true).GetBytes("New Text File");
+        fs.Write(title, 0, title.Length);
+    }
+} 
 else { Console.WriteLine("Invalid Path"); }

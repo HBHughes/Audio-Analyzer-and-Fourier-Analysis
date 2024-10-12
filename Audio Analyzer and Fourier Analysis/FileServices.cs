@@ -22,18 +22,18 @@ namespace Additionals
        {
             return fileBytes[34] + fileBytes[35];
        }
-       public static UInt16[] ByteCombination(byte[] fileBytes) //for increased bytes/sample
+       public static Int16[] ByteCombination(byte[] fileBytes) //for 16 bytes/sample
        {
             int arraysize = DataLength(fileBytes);
             int j = 0;
-            UInt16[] uint16_array = new UInt16[arraysize];
+            Int16[] int16_array = new Int16[arraysize];
             for (int i = DataStartByte(fileBytes); i < fileBytes.Length-1; i++)
             {
-                UInt16 k = BitConverter.ToUInt16(fileBytes, i);
-                uint16_array[j] = k;
+                Int16 k = BitConverter.ToInt16(fileBytes, i);
+                int16_array[j] = k;
                 j++;
             }
-            return uint16_array;
+            return int16_array;
        }
        public static int DataStartByte(byte[] fileBytes)
        { 
