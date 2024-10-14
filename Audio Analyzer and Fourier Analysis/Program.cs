@@ -22,8 +22,11 @@ using static System.Net.Mime.MediaTypeNames;
     7) The sampling frequency must be at least double the highest frequency of the signal 2fmax >= sf
     8) I'll create my own transform function to decrease reliance on external libraries
     9) Input .wav should be roughly periodic
+    https://en.wikipedia.org/wiki/Fourier_analysis#Discrete-time_Fourier_transform_(DTFT)
     Audio Analyzer Notes:
     https://datafireball.com/2016/08/29/wav-deepdive-into-file-format/ , http://soundfile.sapp.org/doc/WaveFormat/
+    MathNet Notes:
+    1) Chosen for good compatibilities with c# 
 */
 Console.WriteLine("Input Valid .wav Path");
 string? inputPath = Console.ReadLine();
