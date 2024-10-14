@@ -1,8 +1,10 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using Additionals;
 using MathNet;
+using static System.Net.Mime.MediaTypeNames;
 /* Goal: 1 Intake Waveform Audio File(WAV)-> 2 Get Composite Waveform-> 3 Graph Composite Waveform-> 4 Using Fourier Analysis (FFT) to seperate into individual Waveforms - Attempt to Use Most ASM possible
     Resources: https://en.wikipedia.org/wiki/Fourier_analysis , https://en.wikipedia.org/wiki/Pulse-code_modulation , 
     https://en.wikipedia.org/wiki/WAV , https://www.nti-audio.com/en/support/know-how/fast-fourier-transform-fft ,
@@ -23,8 +25,11 @@ using MathNet;
     Audio Analyzer Notes:
     https://datafireball.com/2016/08/29/wav-deepdive-into-file-format/ , http://soundfile.sapp.org/doc/WaveFormat/
 */
-
-string rootPath = "C:\\Users\\HHughes\\Documents\\Coding\\file_example_WAV_1MG.wav";
+Console.WriteLine("Input Valid .wav Path");
+string? inputPath = Console.ReadLine();
+// string rootPath = "C:\\Users\\HHughes\\Documents\\Coding\\Sample WAVS\\file_example_WAV_1MG.wav";
+bool nonNullfilepath = String.IsNullOrEmpty(inputPath);
+string rootPath = UserInput.WinFilePathToValidPath(inputPath);
 string validExtension = ".wav";
 bool validPath = (UserInput.StartIsReady(rootPath, validExtension));
 if (validPath)
@@ -35,14 +40,21 @@ if (validPath)
     int ChannelCount = WAVServices.AudioChannelCountWAV(fileBytes);
     binReader.Close();
     fileStream.Close();
-    Console.WriteLine(WAVServices.SubChunk2Size(fileBytes));
-    Console.WriteLine(WAVServices.SubChunk1Size(fileBytes));
-    Console.WriteLine(WAVServices.GetSampleRate(fileBytes));
-    Console.WriteLine(WAVServices.BitsPerSample(fileBytes));
-    UInt16[] Data = WAVServices.ByteCombination(fileBytes);
-    foreach (UInt16 data in Data)
+    byte[] Data = WAVServices.DataTruncate(fileBytes);
+    Console.WriteLine("Important Metadata: ");
+    Console.WriteLine("SubChunk1 Size: " + WAVServices.SubChunk1Size(fileBytes));
+    Console.WriteLine("SubChunk2 Size: " + WAVServices.SubChunk2Size(fileBytes));
+    Console.WriteLine("Sample Rate: " + WAVServices.GetSampleRate(fileBytes) + " Hz");
+    Console.WriteLine("Bits/Sample: " + WAVServices.BitsPerSample(fileBytes));
+    Console.WriteLine("# of Channels: " + WAVServices.ChannelCount(fileBytes));
+    Console.WriteLine("Block Align: " + WAVServices.BlockAlign(fileBytes));
+    Console.WriteLine("Data Info: ");
+    if (WAVServices.BitsPerSample(fileBytes) == 16)
     {
-        Console.WriteLine(data.ToString());
+        Int16[] TrueData = WAVServices.DataByteCombination(fileBytes);
+        Console.WriteLine("Data Time: " + WAVServices.DataTimeLength(TrueData, fileBytes) + " Seconds");
+        Console.WriteLine("Data Length: " + TrueData.Length);
     }
+    else { }
 }
 else { Console.WriteLine("Invalid Path"); }

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Additionals
 {
@@ -22,27 +24,23 @@ namespace Additionals
        {
             return fileBytes[34] + fileBytes[35];
        }
-       public static UInt16[] ByteCombination(byte[] fileBytes) //for increased bytes/sample
+       public static Int16[] DataByteCombination(byte[] fileBytes) //for increased bytes/sample
        {
             int arraysize = DataLength(fileBytes);
             int j = 0;
-            UInt16[] uint16_array = new UInt16[arraysize];
+            Int16[] int16_array = new Int16[arraysize];
             for (int i = DataStartByte(fileBytes); i < fileBytes.Length-1; i++)
             {
-                UInt16 k = BitConverter.ToUInt16(fileBytes, i);
-                uint16_array[j] = k;
+                Int16 k = BitConverter.ToInt16(fileBytes, i);
+                int16_array[j] = k;
                 j++;
             }
-            return uint16_array;
+            return int16_array;
        }
        public static int DataStartByte(byte[] fileBytes)
        { 
           return 20+SubChunk1Size(fileBytes)+8;
        }
-       public static int GetSampleRate(byte[] fileBytes)
-        {
-            return fileBytes[16] + fileBytes[17] + fileBytes[18] + fileBytes[19];
-        }
        public static int SubChunk2Size(byte[] fileBytes)
        {
             int SubChunk2StartByte = SubChunk1Size(fileBytes) + 20 + 4;
@@ -53,19 +51,50 @@ namespace Additionals
             }
             return SubChunk2;
        }
-       public static int BlockAlign(byte[] fileBytes)
+       public static byte[] DataTruncate(byte[] fileBytes)
        {
-            int BlockAlign = fileBytes[32]+fileBytes[33];
+            byte[] Data = new byte[fileBytes.Length - DataStartByte(fileBytes) - 1];
+            int j = 0;
+            for (int i = DataStartByte(fileBytes); i < fileBytes.Length - 1; i++)
+            {
+                byte k = fileBytes[i];
+                Data[j] = k;
+                j++;
+            }
+            return Data;
+        }
+       public static Int16 BlockAlign(byte[] fileBytes)
+       {
+            Int16 BlockAlign = BitConverter.ToInt16(fileBytes, 32);
             return BlockAlign;
        }
        public static int AudioChannelCountWAV(byte[] fileBytes) //Byte 22 and 23
-        {
+       {
             int ChannelCount = fileBytes[22] + fileBytes[23];
             return ChannelCount;
-        }
-        public static int SampleRateWAV(byte[] fileBytes)
+       }
+        public static Int16 ChannelCount(byte[] fileBytes)
         {
-            int SampleRate = fileBytes[24]+fileBytes[25]+fileBytes[26]+fileBytes[27];
+            Int16 ChannelCount = BitConverter.ToInt16(fileBytes, 22);
+            return ChannelCount;
+        }
+        public static float DataTimeLength(byte[] Data, byte[] fileBytes)
+        {
+            float time = Data.Length / GetSampleRate(fileBytes);
+            time = time / ChannelCount(fileBytes);
+            time = time / (8/BlockAlign(fileBytes));
+            return time;
+        }
+       public static float DataTimeLength(Int16[] Data, byte[] fileBytes) //forgot to account for channels
+       {
+            float time = Data.Length / GetSampleRate(fileBytes);
+            time = time / ChannelCount(fileBytes);
+            time = time / (8/BlockAlign(fileBytes));
+            return time;
+       }
+        public static Int32 GetSampleRate(byte[] fileBytes)
+        {
+            Int32 SampleRate = BitConverter.ToInt32(fileBytes, 24);
             return SampleRate;
         }
         public static int DataLength(byte[] fileBytes)
@@ -77,26 +106,28 @@ namespace Additionals
     }
     internal class UserInput
     {
-
-        private static bool NonNullUserTextInput(string? Input)
-        {
-            if (!String.IsNullOrEmpty(Input))
-            {
-                return true;
-            }
-            return false;
-        }
         public static bool StartIsReady(string? filePath, string fileExt)
         {
-            if (NonNullUserTextInput(filePath) && (ValidUserFileInput(filePath,fileExt))) 
+            if (!String.IsNullOrEmpty(filePath)) 
             {
-                return true;
+                if ((ValidUserFileInput(filePath, fileExt))){
+                    return true; }
             }
             return false;
         }
-        private static bool ValidUserFileInput(string? filePath, string fileExt)
+        private static bool ValidUserFileInput(string filePath, string fileExt)
         {
-                return (File.Exists(filePath) && Path.GetExtension(filePath) == fileExt);
+                return (File.Exists(WinFilePathToValidPath(filePath)) && Path.GetExtension(WinFilePathToValidPath(filePath)) == fileExt);
+        }
+        public static string WinFilePathToValidPath(string filePath)
+        {
+            if (!String.IsNullOrEmpty(filePath))
+            {
+                string cleanedText = Regex.Replace(filePath, "[\"']", string.Empty);
+                string returnText = Regex.Replace(cleanedText, @"\\", @"\\"); // could probably combine, not feeling regex today
+                return returnText;
+            }
+            else { return "Null String"; }
         }
     }
 }
