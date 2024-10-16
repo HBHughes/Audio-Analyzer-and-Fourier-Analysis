@@ -40,10 +40,9 @@ if (validPath)
     FileStream fileStream = new FileStream(rootPath, FileMode.Open, FileAccess.Read);
     BinaryReader binReader = new BinaryReader(fileStream, Encoding.ASCII);
     byte[] fileBytes = binReader.ReadBytes((int)fileStream.Length);
-    int ChannelCount = WAVServices.AudioChannelCountWAV(fileBytes);
     binReader.Close();
     fileStream.Close();
-    byte[] Data = WAVServices.DataTruncate(fileBytes);
+    WAVFileMetaData MetaData = new WAVFileMetaData(rootPath, fileBytes);
     Console.WriteLine("Important Metadata: ");
     Console.WriteLine("SubChunk1 Size: " + WAVServices.SubChunk1Size(fileBytes));
     Console.WriteLine("SubChunk2 Size: " + WAVServices.SubChunk2Size(fileBytes));
@@ -56,8 +55,16 @@ if (validPath)
     {
         Int16[] TrueData = WAVServices.DataByteCombination(fileBytes);
         Console.WriteLine("Data Time: " + WAVServices.DataTimeLength(TrueData, fileBytes) + " Seconds");
-        Console.WriteLine("Data Length: " + TrueData.Length);
+        Console.WriteLine("Data Length (# of Amplitudes): " + TrueData.Length);
+        Console.WriteLine("Max Amplitude: " + WAVServices.GetMaxAmplitude(TrueData)); //should be O(n)
+        Console.WriteLine("Max Occurrence Count: " + WAVServices.MaxOccurrenceCount(TrueData, WAVServices.GetMaxAmplitude(TrueData)));
+        Console.WriteLine("Min Amplitude: " + WAVServices.GetMinAmplitude(TrueData));
+        Console.WriteLine("Min Occurrence Count: " + WAVServices.MinOccurrenceCount(TrueData, WAVServices.GetMinAmplitude(TrueData)));
     }
-    else { }
+    else
+    {
+        byte[] Data = WAVServices.DataTruncate(fileBytes);
+        Console.WriteLine("Data Time: " + WAVServices.DataTimeLength(Data, fileBytes) + " Seconds");
+    }
 }
 else { Console.WriteLine("Invalid Path"); }

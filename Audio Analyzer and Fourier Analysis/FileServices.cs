@@ -4,13 +4,39 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Additionals
 {
+    public class WAVFileMetaData(string FilePath, byte[] fileBytes)
+    {
+        public string FilePath = FilePath;
+        public int FileSize = fileBytes.Length * 8;
+        public int ChunkSize = WAVServices.ChunkSize(fileBytes);
+        public int SubChunk1Size = BitConverter.ToInt32(fileBytes, 16);
+        public int AudioFormat = BitConverter.ToInt16(fileBytes, 20);
+        public int ChannelCount = BitConverter.ToInt16(fileBytes, 22);
+        public int AudioSampleRate = BitConverter.ToInt32(fileBytes, 24);
+        public int ByteRate = BitConverter.ToInt32(fileBytes, 28);
+        public int BlockAlign = BitConverter.ToInt16(fileBytes, 32);
+        public int BitsPerSample = BitConverter.ToInt16(fileBytes, 34);
+        public int SubChunk2Size;
+        public int DataStartByte;
+        void SubCunk2SizeInit() 
+        {
+            SubChunk2Size = BitConverter.ToInt32(fileBytes, 24 + SubChunk1Size);
+        }
+        void DataStartByteInit() //prob a more efficient way to intialize this
+        {
+            DataStartByte = 28 + SubChunk1Size;
+        }
+    }
     internal class WAVServices
     {
-
+       public static int ChunkSize(byte[] fileBytes)
+        {
+            int Chunky = BitConverter.ToInt32(fileBytes, 4);
+            return Chunky;
+        }
        public static int SubChunk1Size(byte[] fileBytes) 
        {
             int SubChunkSize = 0;
@@ -68,11 +94,6 @@ namespace Additionals
             Int16 BlockAlign = BitConverter.ToInt16(fileBytes, 32);
             return BlockAlign;
        }
-       public static int AudioChannelCountWAV(byte[] fileBytes) //Byte 22 and 23
-       {
-            int ChannelCount = fileBytes[22] + fileBytes[23];
-            return ChannelCount;
-       }
         public static Int16 ChannelCount(byte[] fileBytes)
         {
             Int16 ChannelCount = BitConverter.ToInt16(fileBytes, 22);
@@ -103,6 +124,104 @@ namespace Additionals
             DataLength=fileBytes.Length - DataStartByte(fileBytes);
             return DataLength;
         }
+        public static int GetMaxAmplitude(byte[] dataBytes)
+        {
+            int MaxAmp = 0;
+            for (int i = 0; i < dataBytes.Length - 1; i++) 
+            {
+                if (dataBytes[i] > MaxAmp) 
+                { MaxAmp = dataBytes[i]; }
+            }
+            return MaxAmp;
+        }
+        public static int GetMaxAmplitude(Int16[] dataBytes)
+        {
+            int MaxAmp = 0;
+            for (int i = 0; i < dataBytes.Length - 1; i++)
+            {
+                if (dataBytes[i] > MaxAmp)
+                { MaxAmp = dataBytes[i]; }
+            }
+            return MaxAmp;
+        }
+        public static int GetMinAmplitude(byte[] dataBytes)
+        {
+            int MinAmp = 0;
+            for (int i = 0; i < dataBytes.Length - 1; i++)
+            {
+                if (dataBytes[i] < MinAmp)
+                { MinAmp = dataBytes[i]; }
+            }
+            return MinAmp;
+        }
+        public static int GetMinAmplitude(Int16[] dataBytes)
+        {
+            int MinAmp = 0;
+            for (int i = 0; i < dataBytes.Length - 1; i++)
+            {
+                if (dataBytes[i] < MinAmp)
+                { MinAmp = dataBytes[i]; }
+            }
+            return MinAmp;
+        }
+        public static int MaxOccurrenceCount(byte[] dataBytes, int MaxValue)
+        {
+            int count = 0;
+            for (int i = 0; i < dataBytes.Length - 1; i++)
+            {
+                if (dataBytes[i] == MaxValue)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+        public static int MaxOccurrenceCount(Int16[] dataBytes, int MaxValue)
+        {
+            int count = 0;
+            for (int i = 0;i < dataBytes.Length - 1;i++)
+            {
+                if (dataBytes[i] ==  MaxValue)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+        public static int MinOccurrenceCount(Int16[] dataBytes, int MinValue)
+        {
+            int count = 0;
+            for (int i = 0; i < dataBytes.Length - 1; i++)
+            {
+                if (dataBytes[i] == MinValue)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+        public static int MinOccurrenceCount(byte[] dataBytes, int MinValue)
+        {
+            int count = 0;
+            for (int i = 0; i < dataBytes.Length - 1; i++)
+            {
+                if (dataBytes[i] == MinValue)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        public static bool IsPeriodic(byte[] dataBytes)
+        {
+            return false;
+        }
+        public static bool IsPeriodic(Int16[] dataBytes)
+        {
+
+            return false;
+        }
     }
     internal class UserInput
     {
@@ -119,7 +238,7 @@ namespace Additionals
         {
                 return (File.Exists(WinFilePathToValidPath(filePath)) && Path.GetExtension(WinFilePathToValidPath(filePath)) == fileExt);
         }
-        public static string WinFilePathToValidPath(string filePath)
+        public static string WinFilePathToValidPath(string? filePath)
         {
             if (!String.IsNullOrEmpty(filePath))
             {
