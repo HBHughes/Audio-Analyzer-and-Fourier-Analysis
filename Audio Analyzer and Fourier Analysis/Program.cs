@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Additionals;
-using MathNet;
 using static System.Net.Mime.MediaTypeNames;
 /* Goal: 1 Intake Waveform Audio File(WAV)-> 2 Get Composite Waveform-> 3 Graph Composite Waveform-> 4 Using Fourier Analysis (FFT) to seperate into individual Waveforms - Attempt to Use Most ASM possible
     Resources: https://en.wikipedia.org/wiki/Fourier_analysis , https://en.wikipedia.org/wiki/Pulse-code_modulation , 
@@ -21,12 +20,12 @@ using static System.Net.Mime.MediaTypeNames;
     6) Frequency resolution; df = fs / BL ( frequency spacing between two measurement results.) returns Hz
     7) The sampling frequency must be at least double the highest frequency of the signal 2fmax >= sf
     8) I'll create my own transform function to decrease reliance on external libraries
-    9) Input .wav should be roughly periodic
-    https://en.wikipedia.org/wiki/Fourier_analysis#Discrete-time_Fourier_transform_(DTFT)
+    X 9) Input .wav should be roughly periodic for a Discrete time Fourier transform (DTFT) https://en.wikipedia.org/wiki/Fourier_analysis#Discrete-time_Fourier_transform_(DTFT)
+    10) Input does NOT need to be periodic if I use a Discrete Time Fourier Series rather than transform https://www.analog.com/media/en/training-seminars/design-handbooks/MixedSignal_Sect5.
+    11)
     Audio Analyzer Notes:
     https://datafireball.com/2016/08/29/wav-deepdive-into-file-format/ , http://soundfile.sapp.org/doc/WaveFormat/
-    MathNet Notes:
-    1) Chosen for good compatibilities with c# 
+    
 */
 Console.WriteLine("Input Valid .wav Path");
 string? inputPath = Console.ReadLine();
@@ -43,18 +42,10 @@ if (validPath)
     binReader.Close();
     fileStream.Close();
     WAVFileMetaData MetaData = new WAVFileMetaData(rootPath, fileBytes);
-    Console.WriteLine("Important Metadata: ");
-    Console.WriteLine("SubChunk1 Size: " + WAVServices.SubChunk1Size(fileBytes));
-    Console.WriteLine("SubChunk2 Size: " + WAVServices.SubChunk2Size(fileBytes));
-    Console.WriteLine("Sample Rate: " + WAVServices.GetSampleRate(fileBytes) + " Hz");
-    Console.WriteLine("Bits/Sample: " + WAVServices.BitsPerSample(fileBytes));
-    Console.WriteLine("# of Channels: " + WAVServices.ChannelCount(fileBytes));
-    Console.WriteLine("Block Align: " + WAVServices.BlockAlign(fileBytes));
-    Console.WriteLine("Data Info: ");
-    if (WAVServices.BitsPerSample(fileBytes) == 16)
+    Console.WriteLine(MetaData.ChunkSize);
+    if (MetaData.BitsPerSample == 16)
     {
-        Int16[] TrueData = WAVServices.DataByteCombination(fileBytes);
-        Console.WriteLine("Data Time: " + WAVServices.DataTimeLength(TrueData, fileBytes) + " Seconds");
+        /* Int16[] TrueData = WAVServices.DataByteCombination(fileBytes);
         Console.WriteLine("Data Length (# of Amplitudes): " + TrueData.Length);
         Console.WriteLine("Max Amplitude: " + WAVServices.GetMaxAmplitude(TrueData)); //should be O(n)
         Console.WriteLine("Max Occurrence Count: " + WAVServices.MaxOccurrenceCount(TrueData, WAVServices.GetMaxAmplitude(TrueData)));
@@ -62,9 +53,7 @@ if (validPath)
         Console.WriteLine("Min Occurrence Count: " + WAVServices.MinOccurrenceCount(TrueData, WAVServices.GetMinAmplitude(TrueData)));
     }
     else
-    {
-        byte[] Data = WAVServices.DataTruncate(fileBytes);
-        Console.WriteLine("Data Time: " + WAVServices.DataTimeLength(Data, fileBytes) + " Seconds");
+    { */
     }
 }
 else { Console.WriteLine("Invalid Path"); }
