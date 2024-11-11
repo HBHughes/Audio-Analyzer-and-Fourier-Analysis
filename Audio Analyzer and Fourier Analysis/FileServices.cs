@@ -21,13 +21,22 @@ namespace Additionals
         public int BitsPerSample = BitConverter.ToInt16(fileBytes, 34);
         public int SubChunk2Size;
         public int DataStartIndex;
+        public List<int> DataInitialize(int DataStartIndex)
+        {
+            List<int> data = new List<int>();
+            for (int i = DataStartIndex; i < fileBytes.Length-DataStartIndex/AudioSampleRate; i++)
+            { 
+                data.Add(fileBytes[i]);
+            }
+            return data;
+        }
         void SubCunk2SizeInit() 
         {
-            SubChunk2Size = BitConverter.ToInt32(fileBytes, 24 + SubChunk1Size);
+            SubChunk2Size = BitConverter.ToInt32(fileBytes, 24 + this.SubChunk1Size);
         }
         void DataStartIndexInit() //prob a more efficient way to intialize this
         {
-            DataStartIndex = 28 + SubChunk1Size;
+            this.DataStartIndex = 28 + this.SubChunk1Size;
         }
     }
     internal class WAVServices
